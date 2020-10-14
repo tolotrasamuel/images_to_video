@@ -1,0 +1,6 @@
+package com.tolotra.images_to_video_example
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
