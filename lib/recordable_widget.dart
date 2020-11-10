@@ -1,16 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:images_to_video/gesture_detector_layer.dart';
 import 'package:images_to_video/screenshot_controller.dart';
+
 class RecordableWidget extends StatefulWidget {
   final Widget child;
   static GlobalKey previewContainer = new GlobalKey();
-  const RecordableWidget({Key key, this.child}) : super(key: key);
+  final bool isDebug;
+  const RecordableWidget({Key key, this.child, this.isDebug = false})
+      : super(key: key);
   @override
   _RecordableWidgetState createState() => _RecordableWidgetState();
 }
 
-class _RecordableWidgetState extends State<RecordableWidget> with WidgetsBindingObserver {
+class _RecordableWidgetState extends State<RecordableWidget>
+    with WidgetsBindingObserver {
   AppLifecycleState _notification;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    ScreenshotController.instance.setup(widget.isDebug);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      ScreenshotController.instance.takeScreenshot();
+    });
+  }
+
   @override
   void reassemble() {
     ScreenshotController.instance.stop();
@@ -18,29 +33,17 @@ class _RecordableWidgetState extends State<RecordableWidget> with WidgetsBinding
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    ScreenshotController.instance.setup();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ScreenshotController.instance.takeScreenshot();
-    });
-  }
-
-
-  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _notification = state;
     print('$logId app state changed to $state');
-    if (state == AppLifecycleState.resumed ||
-        state == AppLifecycleState.inactive) {
+    if (_notification == AppLifecycleState.resumed ||
+        _notification == AppLifecycleState.inactive) {
       ScreenshotController.instance.takeScreenshot();
     } else {
       ScreenshotController.instance.stop();
     }
     setState(() {});
   }
-
 
   @override
   void dispose() {

@@ -4,20 +4,23 @@ import android.app.Activity
 import android.util.Log
 import com.tolotra.images_to_video.ScreenRecorder
 import com.tolotra.images_to_video.ScreenRecorderStatus
-import java.sql.Timestamp
 import java.util.*
 
 class ScreenRecorderWrapper {
+    private var isDebug: Boolean = true;
     private var screenRecorder: ScreenRecorder? = null
     private var activity: Activity? = null
 
-    fun setup() {
+    fun setup(debug: Boolean) {
+        isDebug = debug
         val screenRecorder = this.getCurrentScreenRecorder()
-        screenRecorder.setup()
+        screenRecorder.setup(isDebug)
     }
 
     fun addToVideo(bytes: ByteArray, timestamp: Long) {
-        Log.d("ArrayByteTransfer", "From flutter to Android took ${Date().time - timestamp} ms")
+        if(isDebug){
+            Log.d("ArrayByteTransfer", "From flutter to Android took ${Date().time - timestamp} ms")
+        }
         val screenRecorder = this.getCurrentScreenRecorder()
         screenRecorder.feed(bytes, timestamp)
     }
@@ -46,7 +49,7 @@ class ScreenRecorderWrapper {
 
     private fun createNewRecorder() {
         screenRecorder = ScreenRecorder(activity!!)
-        screenRecorder!!.setup()
+        screenRecorder!!.setup(isDebug)
     }
 
     fun setActivity(activity: Activity?) {
