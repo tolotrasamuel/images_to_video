@@ -198,9 +198,9 @@ class VideoBuilder(applicationContext: Context) {
                 // to achieve the desired frame rate
                 bufferInfo.presentationTimeUs = presentationTimeUs
                 if (encodedBuffer != null) {
-                    Log.d(TAG, "Muxer writing sample data")
+//                    Log.d(TAG, "Muxer writing sample data")
                     muxer.writeSampleData(trackIndex, encodedBuffer, bufferInfo)
-                    Log.d(TAG, "Muxer writing sample data done")
+//                    Log.d(TAG, "Muxer writing sample data done")
 
                     // h264
 //                    _saveH264(encodedBuffer)
@@ -209,9 +209,9 @@ class VideoBuilder(applicationContext: Context) {
 
                 presentationTimeUs += timelapseUs
 
-                Log.d(TAG, "Encoder releaseOutputBuffer")
+//                Log.d(TAG, "Encoder releaseOutputBuffer")
                 encoder.releaseOutputBuffer(outBufferId, false)
-                Log.d(TAG, "Encoder releaseOutputBuffer done")
+//                Log.d(TAG, "Encoder releaseOutputBuffer done")
 
                 // Are we finished here?
                 if ((bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0)
