@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:images_to_video/gesture_detector_layer.dart';
 import 'package:images_to_video/screenshot_controller.dart';
+
 class RecordableWidget extends StatefulWidget {
   final Widget child;
   static GlobalKey previewContainer = new GlobalKey();
+
   const RecordableWidget({Key key, this.child}) : super(key: key);
+
   @override
   _RecordableWidgetState createState() => _RecordableWidgetState();
 }
 
-class _RecordableWidgetState extends State<RecordableWidget> with WidgetsBindingObserver {
+class _RecordableWidgetState extends State<RecordableWidget>
+    with WidgetsBindingObserver {
   AppLifecycleState _notification;
+
   @override
   void reassemble() {
     ScreenshotController.instance.stop();
@@ -27,7 +32,6 @@ class _RecordableWidgetState extends State<RecordableWidget> with WidgetsBinding
     });
   }
 
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _notification = state;
@@ -40,7 +44,6 @@ class _RecordableWidgetState extends State<RecordableWidget> with WidgetsBinding
     }
     setState(() {});
   }
-
 
   @override
   void dispose() {
@@ -59,7 +62,7 @@ class _RecordableWidgetState extends State<RecordableWidget> with WidgetsBinding
           print(
               '$logId outter on tap down local ${event.localPosition} global ${event.globalPosition}');
           ScreenshotController.instance.touch(event.localPosition);
-          ScreenshotController.instance.takeScreenshot();
+          ScreenshotController .instance.takeScreenshot();
         },
         dragUpdate: (event) async {
           print(
