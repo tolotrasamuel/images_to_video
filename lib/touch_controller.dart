@@ -6,7 +6,6 @@ class TouchPosition {
 //  doube get  x => offset.dx;
   final Offset offset;
   final int timestamp;
-
   TouchPosition(this.offset, this.timestamp);
 
   double updateVisibility(int now, int durationMs) {
@@ -30,6 +29,7 @@ class TouchPosition {
 
 class TouchController {
   var touchPositions = List<TouchPosition>();
+  bool isDebug = false;
 
   setTouchPosition(offset, int timestamp) {
     touchPositions.add(TouchPosition(offset, timestamp));
@@ -48,8 +48,10 @@ class TouchController {
 
   drawTouch(Canvas canvas, int timestamp, double ratio) {
     touchPositions = cleanTouchPositions(timestamp);
-    print(
-        "Touch position added now count is before draw ${touchPositions.length}");
+    if(isDebug){
+      print(
+          "Touch position added now count is before draw ${touchPositions.length}");
+    }
     var defaultRadius = 50 * ratio;
     for (var touch in touchPositions) {
       var paint = Paint();
@@ -61,5 +63,9 @@ class TouchController {
       canvas.drawCircle(
           Offset(scaledOffset.dx, scaledOffset.dy), radius, paint);
     }
+  }
+
+  void setup(bool isDebug) {
+    this.isDebug = isDebug;
   }
 }

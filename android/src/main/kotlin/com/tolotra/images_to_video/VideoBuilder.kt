@@ -35,6 +35,7 @@ class VideoBuilder(applicationContext: Context) {
     private var eglDisplay: EGLDisplay? = null
     private var eglSurface: EGLSurface? = null
     private lateinit var surface: Surface
+    private var isDebug: Boolean = true;
 
 
     val timeoutUs = 10000L
@@ -42,7 +43,8 @@ class VideoBuilder(applicationContext: Context) {
     var presentationTimeUs: Long = 0
 
 
-    fun setup() {
+    fun setup(debug: Boolean) {
+        isDebug = debug
         encoder = createEncoder()
         initInputSurface(encoder)
         encoder.start()
@@ -65,13 +67,20 @@ class VideoBuilder(applicationContext: Context) {
     fun feed(bitmap: Bitmap, timelapse: Long) {
 
         frameId++
-        Log.d("FEED_PROFILE", "feed frame:$frameId")
+        if(isDebug){
+            Log.d("FEED_PROFILE", "feed frame:$frameId")
+        }
         val timings = TimingLogger("FEED_PROFILE", "feed frame:$frameId")
         // Get encoded data and feed it to muxer
         drainEncoder(encoder, muxer, false, timelapse)
 
         timings.addSplit("drainEncoder done");
         // Render the bitmap/texture with OpenGL here
+
+        if(isDebug){
+            Log.d("Bitmap", "Rendering width ${bitmap.width} height ${bitmap.height}")
+        }
+
         glTool.render(bitmap)
         timings.addSplit("render done");
 
@@ -81,7 +90,9 @@ class VideoBuilder(applicationContext: Context) {
         // Feed encoder with next frame produced by OpenGL
         EGL14.eglSwapBuffers(eglDisplay, eglSurface)
 
-        timings.dumpToLog();
+        if(isDebug){
+            timings.dumpToLog();
+        }
     }
 
     fun finish() {
@@ -144,11 +155,12 @@ class VideoBuilder(applicationContext: Context) {
 
 
     fun createEncoder(): MediaCodec {
-
+        
         bufferInfo = MediaCodec.BufferInfo()
         val MIME = "video/avc"
 //        val MIME = "video/mpeg2"
         val encoder = MediaCodec.createEncoderByType(MIME)
+        
         val width = 320
         val heigh = 512
         val format = MediaFormat.createVideoFormat(MIME, width, heigh)
@@ -186,7 +198,9 @@ class VideoBuilder(applicationContext: Context) {
                 // to achieve the desired frame rate
                 bufferInfo.presentationTimeUs = presentationTimeUs
                 if (encodedBuffer != null) {
+//                    Log.d(TAG, "Muxer writing sample data")
                     muxer.writeSampleData(trackIndex, encodedBuffer, bufferInfo)
+//                    Log.d(TAG, "Muxer writing sample data done")
 
                     // h264
 //                    _saveH264(encodedBuffer)
@@ -195,7 +209,9 @@ class VideoBuilder(applicationContext: Context) {
 
                 presentationTimeUs += timelapseUs
 
+//                Log.d(TAG, "Encoder releaseOutputBuffer")
                 encoder.releaseOutputBuffer(outBufferId, false)
+//                Log.d(TAG, "Encoder releaseOutputBuffer done")
 
                 // Are we finished here?
                 if ((bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0)
@@ -316,7 +332,7 @@ class VideoBuilder(applicationContext: Context) {
 
 }
 
-class OverlayRenderer() {
+class OverlayRenderer {
 
     private val mvpMatrix = FloatArray(16)
     private val projectionMatrix = FloatArray(16)
@@ -389,7 +405,6 @@ class OverlayRenderer() {
 
     fun render(bitmap: Bitmap) {
 
-        Log.d("Bitmap", "width ${bitmap.width} height ${bitmap.height}")
 
 
 // Prepare some transformations

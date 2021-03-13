@@ -32,18 +32,20 @@ class ScreenRecorder(activity: Activity) {
     private var recording: Boolean = false
     private var lastTimestamp: Long? = null
     private var status: ScreenRecorderStatus = ScreenRecorderStatus.NOT_STARTED
+    private var isDebug: Boolean = true;
     fun getStatus(): ScreenRecorderStatus {
         return status
     }
 
-    fun setup() {
+    fun setup(debug: Boolean) {
+        isDebug = debug
         tpe = Executors.newSingleThreadExecutor()
         tpe?.submit(Runnable {
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
             this.status = ScreenRecorderStatus.RECORDING
             this.recording = true;
             recodrer = VideoBuilder(activity.applicationContext)
-            recodrer.setup();
+            recodrer.setup(isDebug);
         })
     }
 
@@ -54,7 +56,9 @@ class ScreenRecorder(activity: Activity) {
             val bitmap = getRawBitmapFlutter(bytes)
 //            this.drawTouch(canvas, timestamp)
 
-            Log.d(TAG, "New Frame to record ${bitmap.width}  ${bitmap.height}")
+            if(isDebug){
+                Log.d(TAG, "New Frame to record ${bitmap.width}  ${bitmap.height}")
+            }
 //            val time = Date().time
             val laspe = this.getTimelapseUs(timestamp)
             recodrer.feed(bitmap, laspe)
@@ -66,7 +70,9 @@ class ScreenRecorder(activity: Activity) {
         val timings = TimingLogger("FEED_PROFILE", "reading bitmap frame")
         val bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.size);
         timings.addSplit("converting bytes to bitmap done")
-        timings.dumpToLog()
+        if(isDebug){
+            timings.dumpToLog()
+        }
         return bitmap;
     }
 
@@ -75,8 +81,10 @@ class ScreenRecorder(activity: Activity) {
         val bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.size);
         timings.addSplit("converting bytes to bitmap done")
         timings.addSplit("reading bitmap done")
-        timings.dumpToLog()
-        Log.d(TAG, "Bitmap otained  ${bitmap?.width} ${bitmap?.height} ${bitmap != null}")
+        if(isDebug){
+            timings.dumpToLog()
+            Log.d(TAG, "Bitmap otained  ${bitmap?.width} ${bitmap?.height} ${bitmap != null}")
+        }
         val bmOverlay = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
         val canvas = Canvas(bmOverlay)
         canvas.drawBitmap(bitmap, Matrix(), null)

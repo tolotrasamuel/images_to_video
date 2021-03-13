@@ -44,6 +44,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return RecordableWidget(
+      isDebug: true,
       child: MaterialApp(
         home: DefaultTabController(
           length: 3,

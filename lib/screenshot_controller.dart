@@ -18,6 +18,7 @@ class ScreenshotController {
 
   static const FPS = 10;
 
+  bool isDebug = false;
   static get frameDuration => Duration(milliseconds: (1000 / FPS).round());
   Timer _debounceTimer;
   Timer _frameTick;
@@ -31,19 +32,22 @@ class ScreenshotController {
     await _takeSnapshot();
     await _continueForTrailingSeconds();
   }
+
   pause() async {
     paused = true;
     await _stopTrailingRecord();
   }
 
   Future<ui.Image> _takeFlutterScreenShoot(double pxRatio) async {
-    print('$logId getting flutter screenshot');
+    if(isDebug){
+      print('$logId getting flutter screenshot');
+    }
     final timelogger = new TimingLogger("Screenshot", "Taking screenshot");
     RenderRepaintBoundary boundary =
         RecordableWidget.previewContainer.currentContext.findRenderObject();
     ui.Image image = await boundary.toImage(pixelRatio: pxRatio);
     timelogger.addSplit("converting boundary to Image done pxRatio: $pxRatio");
-    timelogger.dumpToLog();
+    if (isDebug) timelogger.dumpToLog();
     return image;
 
 //    return pngBytes;
@@ -66,7 +70,7 @@ class ScreenshotController {
     if (_frameTick?.isActive == true) return;
     print('$logId starting trailing record');
     _frameTick = Timer.periodic(frameDuration, (_) {
-      if(paused) return;
+      if (paused) return;
       this._takeSnapshot();
     });
   }
@@ -77,7 +81,9 @@ class ScreenshotController {
     if (!canCall) return;
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     Uint8List byteArray = await _getScreenshotBytes(timestamp);
-    print('$logId Screenshoot as byte ${byteArray.length}');
+    if(isDebug){
+      print('$logId Screenshoot as byte ${byteArray.length}');
+    }
 //    await _saveSnapshot(byteArray);
     await _addToVideo(byteArray, timestamp);
 //    await _saveSnapshot(byteArray);
@@ -96,9 +102,10 @@ class ScreenshotController {
     final picture = recorder.endRecording();
     final imageAll = await picture.toImage(image.width, image.height);
     timelogger.addSplit("image all to image");
-    ByteData byteDataAll = await imageAll.toByteData(format: ui.ImageByteFormat.png);
+    ByteData byteDataAll =
+        await imageAll.toByteData(format: ui.ImageByteFormat.png);
     timelogger.addSplit("compressing image all");
-    timelogger.dumpToLog();
+    if (isDebug) timelogger.dumpToLog();
     return byteDataAll.buffer.asUint8List();
   }
 
@@ -112,8 +119,10 @@ class ScreenshotController {
     ImagesToVideo.addToVideo(byteArray, timestamp);
   }
 
-  void setup() {
-    ImagesToVideo.setup(path: 'video-out.mp4');
+  void setup(bool isDebug) {
+    this.isDebug = isDebug;
+    this.touchController.setup(isDebug);
+    ImagesToVideo.setup(path: 'video-out.mp4', isDebug: isDebug);
   }
 
   void stop() {
@@ -121,7 +130,6 @@ class ScreenshotController {
     paused = true;
     _stopTrailingRecord();
     ImagesToVideo.stop();
-
   }
 }
 

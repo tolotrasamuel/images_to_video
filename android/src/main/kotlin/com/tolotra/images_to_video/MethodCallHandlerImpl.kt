@@ -11,16 +11,20 @@ import io.flutter.plugin.common.MethodChannel
 class MethodCallHandlerImpl(screenRecorder: ScreenRecorderWrapper) : MethodChannel.MethodCallHandler {
     private val screenRecorder = screenRecorder;
     private var channel: MethodChannel? = null
+    private var isDebug  = true;
 
     companion object {
         const val METHOD_CHANNEL_NAME = "images_to_video"
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: MethodChannel.Result) {
-        Log.d(ContentValues.TAG, "Version 0.0.10")
+        if(isDebug){
+            Log.d(ContentValues.TAG, "Version 0.0.10")
+        }
         if (call.method == "setup") {
             val outputPath: String? = call.argument("outputPath")
-            screenRecorder.setup()
+            isDebug = call.argument("isDebug")!!
+            screenRecorder.setup(isDebug)
         } else if (call.method == "addToVideo") {
             val frame: ByteArray? = call.argument("frame")
             val timestamp: Long? = call.argument("timestamp")
