@@ -5,9 +5,9 @@ import 'package:images_to_video/screenshot_controller.dart';
 class RecordableWidget extends StatefulWidget {
   final Widget child;
   static GlobalKey previewContainer = new GlobalKey();
-
-  const RecordableWidget({Key key, this.child}) : super(key: key);
-
+  final bool isDebug;
+  const RecordableWidget({Key key, this.child, this.isDebug = false})
+      : super(key: key);
   @override
   _RecordableWidgetState createState() => _RecordableWidgetState();
 }
@@ -17,27 +17,27 @@ class _RecordableWidgetState extends State<RecordableWidget>
   AppLifecycleState _notification;
 
   @override
-  void reassemble() {
-    ScreenshotController.instance.stop();
-    super.reassemble();
-  }
-
-  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    ScreenshotController.instance.setup();
+    ScreenshotController.instance.setup(widget.isDebug);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ScreenshotController.instance.takeScreenshot();
     });
   }
 
   @override
+  void reassemble() {
+    ScreenshotController.instance.stop();
+    super.reassemble();
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _notification = state;
     print('$logId app state changed to $state');
-    if (state == AppLifecycleState.resumed ||
-        state == AppLifecycleState.inactive) {
+    if (_notification == AppLifecycleState.resumed ||
+        _notification == AppLifecycleState.inactive) {
       ScreenshotController.instance.takeScreenshot();
     } else {
       ScreenshotController.instance.stop();
@@ -62,7 +62,7 @@ class _RecordableWidgetState extends State<RecordableWidget>
           print(
               '$logId outter on tap down local ${event.localPosition} global ${event.globalPosition}');
           ScreenshotController.instance.touch(event.localPosition);
-          ScreenshotController .instance.takeScreenshot();
+          ScreenshotController.instance.takeScreenshot();
         },
         dragUpdate: (event) async {
           print(
