@@ -6,11 +6,11 @@ import 'dart:ui';
 class ImagesToVideo {
   static const MethodChannel _channel = const MethodChannel('images_to_video');
 
-  static Future<String> setup({
+  static Future<String?> setup({
     String path = 'video-out.mp4',
     bool isDebug = false,
   }) async {
-    final String version = await _channel.invokeMethod(
+    final String? version = await _channel.invokeMethod(
       'setup',
       {
         'outputPath': path,

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 
 class GestureDetectorTracker extends StatelessWidget {
   final Widget child;
@@ -8,7 +8,9 @@ class GestureDetectorTracker extends StatelessWidget {
   final Function(DragUpdateDetails) dragUpdate;
   String get logId => runtimeType.toString();
 
-  const GestureDetectorTracker({Key key, this.child, this.dragStart, this.dragUpdate}) : super(key: key);
+  const GestureDetectorTracker(
+      {Key? key, required this.child, required this.dragStart, required this.dragUpdate})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

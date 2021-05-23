@@ -20,8 +20,8 @@ class ScreenshotController {
 
   bool isDebug = false;
   static get frameDuration => Duration(milliseconds: (1000 / FPS).round());
-  Timer _debounceTimer;
-  Timer _frameTick;
+  Timer? _debounceTimer;
+  Timer? _frameTick;
   bool paused = false;
   final throttleLimit = new ThrottleFilter(frameDuration);
 
@@ -44,7 +44,7 @@ class ScreenshotController {
     }
     final timelogger = new TimingLogger("Screenshot", "Taking screenshot");
     RenderRepaintBoundary boundary =
-        RecordableWidget.previewContainer.currentContext.findRenderObject();
+        RecordableWidget.previewContainer.currentContext!.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage(pixelRatio: pxRatio);
     timelogger.addSplit("converting boundary to Image done pxRatio: $pxRatio");
     if (isDebug) timelogger.dumpToLog();
@@ -103,7 +103,7 @@ class ScreenshotController {
     final imageAll = await picture.toImage(image.width, image.height);
     timelogger.addSplit("image all to image");
     ByteData byteDataAll =
-        await imageAll.toByteData(format: ui.ImageByteFormat.png);
+        await (imageAll.toByteData(format: ui.ImageByteFormat.png) as FutureOr<ByteData>);
     timelogger.addSplit("compressing image all");
     if (isDebug) timelogger.dumpToLog();
     return byteDataAll.buffer.asUint8List();
@@ -134,7 +134,7 @@ class ScreenshotController {
 }
 
 class ThrottleFilter<T> {
-  DateTime lastEventDateTime;
+  DateTime? lastEventDateTime;
   final Duration duration;
 
   ThrottleFilter(this.duration);
@@ -142,7 +142,7 @@ class ThrottleFilter<T> {
   bool call() {
     final now = new DateTime.now();
     if (lastEventDateTime == null ||
-        now.difference(lastEventDateTime) > duration) {
+        now.difference(lastEventDateTime!) > duration) {
       lastEventDateTime = now;
       return true;
     }

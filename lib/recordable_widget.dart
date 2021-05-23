@@ -6,7 +6,7 @@ class RecordableWidget extends StatefulWidget {
   final Widget child;
   static GlobalKey previewContainer = new GlobalKey();
   final bool isDebug;
-  const RecordableWidget({Key key, this.child, this.isDebug = false})
+  const RecordableWidget({Key? key, required this.child, this.isDebug = false})
       : super(key: key);
   @override
   _RecordableWidgetState createState() => _RecordableWidgetState();
@@ -14,14 +14,14 @@ class RecordableWidget extends StatefulWidget {
 
 class _RecordableWidgetState extends State<RecordableWidget>
     with WidgetsBindingObserver {
-  AppLifecycleState _notification;
+  AppLifecycleState? _notification;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance!.addObserver(this);
     ScreenshotController.instance.setup(widget.isDebug);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       ScreenshotController.instance.takeScreenshot();
     });
   }
@@ -47,7 +47,7 @@ class _RecordableWidgetState extends State<RecordableWidget>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 

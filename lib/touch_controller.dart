@@ -28,7 +28,7 @@ class TouchPosition {
 }
 
 class TouchController {
-  var touchPositions = List<TouchPosition>();
+  List<TouchPosition> touchPositions = [];
   bool isDebug = false;
 
   setTouchPosition(offset, int timestamp) {
@@ -36,7 +36,7 @@ class TouchController {
   }
 
   List<TouchPosition> cleanTouchPositions(int now) {
-    var newTouchPositions = List<TouchPosition>();
+    List<TouchPosition> newTouchPositions = [];
     for (var touch in touchPositions) {
       var visibility = touch.updateVisibility(now, 250);
       if (visibility > 0) {
@@ -48,7 +48,7 @@ class TouchController {
 
   drawTouch(Canvas canvas, int timestamp, double ratio) {
     touchPositions = cleanTouchPositions(timestamp);
-    if(isDebug){
+    if (isDebug) {
       print(
           "Touch position added now count is before draw ${touchPositions.length}");
     }
