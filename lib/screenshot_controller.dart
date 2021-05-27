@@ -80,7 +80,8 @@ class ScreenshotController {
     final canCall = this.throttleLimit.call();
     if (!canCall) return;
     int timestamp = DateTime.now().millisecondsSinceEpoch;
-    Uint8List byteArray = await _getScreenshotBytes(timestamp);
+    Uint8List? byteArray = await _getScreenshotBytes(timestamp);
+    if(byteArray == null) return;
     if(isDebug){
       print('$logId Screenshoot as byte ${byteArray.length}');
     }
@@ -89,7 +90,7 @@ class ScreenshotController {
 //    await _saveSnapshot(byteArray);
   }
 
-  Future<Uint8List> _getScreenshotBytes(int timestamp) async {
+  Future<Uint8List?> _getScreenshotBytes(int timestamp) async {
 //    return await _getScreenshotNavite();
     double pxRatio = 0.5;
     final image = await _takeFlutterScreenShoot(pxRatio);
@@ -102,8 +103,9 @@ class ScreenshotController {
     final picture = recorder.endRecording();
     final imageAll = await picture.toImage(image.width, image.height);
     timelogger.addSplit("image all to image");
-    ByteData byteDataAll =
-        await (imageAll.toByteData(format: ui.ImageByteFormat.png) as FutureOr<ByteData>);
+    ByteData? byteDataAll =
+        await imageAll.toByteData(format: ui.ImageByteFormat.png);
+    if(byteDataAll == null) return null;
     timelogger.addSplit("compressing image all");
     if (isDebug) timelogger.dumpToLog();
     return byteDataAll.buffer.asUint8List();
