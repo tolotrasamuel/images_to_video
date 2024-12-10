@@ -10,3 +10,6 @@ flutter_sdk
 
 .idea/workspace.xml
 .fvm/
+
+node_modules/
+
