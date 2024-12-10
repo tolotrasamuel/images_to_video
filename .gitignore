@@ -6,3 +6,5 @@
 
 build/
 flutter_sdk
+.idea/**/libraries
+
