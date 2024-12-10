@@ -8,3 +8,4 @@ build/
 flutter_sdk
 .idea/**/libraries
 
+.idea/workspace.xml
